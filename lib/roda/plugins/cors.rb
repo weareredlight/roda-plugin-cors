@@ -20,31 +20,38 @@ class Roda
 
       module InstanceMethods
         def call(&block)
-          allowed = self.class._cors_allowed_origins
-          response['Access-Control-Allow-Origin'] =
-            if (allowed.nil? || allowed.empty?) &&
-               %w[development test].include?(ENV['RACK_ENV']) ||
-               allowed&.first == '*'
-              '*'
-            elsif allowed&.include?(env['HTTP_ORIGIN'])
-              env['HTTP_ORIGIN']
-            end
+          response['Access-Control-Allow-Origin'] = Private.cors_header(
+            env,
+            self.class._cors_allowed_origins
+          )
+          Private.default_options_handler(env, response, super)
+        end
+      end
 
-          default_options_handler(super)
+
+      module Private
+        def self.cors_header(env, allowed)
+          if (allowed.nil? || allowed.empty?) &&
+             %w[development test].include?(ENV['RACK_ENV'])
+            '*'
+          elsif allowed&.length == 1
+            allowed.first
+          elsif allowed&.include?(env['HTTP_ORIGIN'])
+            env['HTTP_ORIGIN']
+          end
         end
 
 
         # Reply to OPTIONS request if there's no user-defined route to handle it
-        def default_options_handler(response_data)
-          if env['REQUEST_METHOD'] == 'OPTIONS'
+        def self.default_options_handler(env, response, response_data)
+          if env['REQUEST_METHOD'] == 'OPTIONS' && response_data.first == 404
+            response_data[0] = 200
             response['Access-Control-Allow-Headers'] = 'Content-Type'
-            response_data[0] = 200 if response_data.first == 404
           end
           response_data
         end
       end
     end
-
 
     register_plugin(:cors, Cors)
   end
