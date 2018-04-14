@@ -20,10 +20,6 @@ describe Roda::RodaPlugins::Cors do
 
         route do |r|
           r.root { 'wazaaaaaa' }
-          r.options('something') do
-            response['Access-Control-Allow-Origin'] = 'http://waz.za'
-            'app handled it'
-          end
         end
       end
     end
@@ -63,14 +59,6 @@ describe Roda::RodaPlugins::Cors do
       last_response.body.must_be :empty?
       last_response['Access-Control-Allow-Origin'].must_equal '*'
       last_response['Access-Control-Allow-Headers'].must_equal 'Content-Type'
-    end
-
-    it "doesn't handle OPTIONS requests that are handled by the app" do
-      options '/something'
-      last_response.must_be :ok?
-      last_response.body.must_equal 'app handled it'
-      last_response['Access-Control-Allow-Origin'].must_equal 'http://waz.za'
-      last_response['Access-Control-Allow-Headers'].must_be :nil?
     end
   end
 
