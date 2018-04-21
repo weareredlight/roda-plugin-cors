@@ -27,7 +27,7 @@ class Roda
 
           if env['REQUEST_METHOD'] == 'OPTIONS'
             [200, {
-              'Access-Control-Allow-Headers' => 'Content-Type',
+              'Access-Control-Allow-Headers' => 'Authorization,Content-Type',
               'Access-Control-Allow-Origin' => allow_origin
             }, ['']]
           else

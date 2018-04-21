@@ -2,8 +2,6 @@
 
 require 'spec_helper'
 
-require 'pry'
-
 
 describe Roda::RodaPlugins::Cors do
   include Rack::Test::Methods
